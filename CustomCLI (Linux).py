@@ -4,7 +4,7 @@ from socket import gethostname
 
 cli_loop = True
 
-def tokenizer(command, arguments):
+def split_pipeline(command, arguments):
     commands=[]
     current_command=[]
     full_command = [command] + arguments
@@ -15,19 +15,44 @@ def tokenizer(command, arguments):
         else:
             current_command.append(item)
     commands.append(current_command)
-    # print(commands)
     return commands
 
-def externals(command, arguments):
+def split_redirects(full_command):
+    i=0
+    input_file=None
+    output_file=None
+    clean_com_args=[]
+    while i<len(full_command):
+        if full_command[i]=="<":
+            input_file=full_command[i+1]
+            i+=2
+        elif full_command[i]==">":
+            output_file=full_command[i+1]
+            i+=2
+        else:
+            clean_com_args.append(full_command[i])
+            i+=1
+    return (clean_com_args, input_file, output_file)
+
+def run_externals(command, arguments):
     full_command = [command] + arguments
+    clean_com_args, input_file, output_file = split_redirects(full_command)
     pid = os.fork()
     if pid == 0 :
-        os.execvp(command, full_command)
+        if input_file:
+            fd=os.open(input_file, os.O_RDONLY)
+            os.dup2(fd,0)
+        if output_file:
+            fd=os.open(output_file, os.O_WRONLY|os.O_CREAT|os.O_TRUNC, mode=0o777)
+            os.dup2(fd,1)
+        if clean_com_args==[]:
+            clean_com_args=full_command
+        os.execvp(clean_com_args[0], clean_com_args)
     else:
         os.wait()
 
-def advanced(command, arguments):
-    commands = tokenizer(command, arguments)
+def run_pipeline(command, arguments):
+    commands = split_pipeline(command, arguments)
     prev_read=None
     pids=[]
     for i, index in enumerate(commands):
@@ -47,7 +72,19 @@ def advanced(command, arguments):
                 os.close(r)
                 os.close(w)
             
-            os.execvp(index[0],index)
+            clean_com_args, input_file, output_file = split_redirects(index)
+            if input_file:
+                fd=os.open(input_file, os.O_RDONLY)
+                os.dup2(fd,0)
+                os.close(fd)
+            if output_file:
+                fd=os.open(output_file, os.O_WRONLY|os.O_CREAT|os.O_TRUNC, mode=0o777)
+                os.dup2(fd,1)
+                os.close(fd)
+            if clean_com_args==[]:
+                    clean_com_args=index
+            os.execvp(clean_com_args[0],clean_com_args)
+        
         else:
             pids.append(pid)
             if prev_read != None:
@@ -93,5 +130,8 @@ while cli_loop :
         case "help" | "?":
             getHelp()
         case _:
-            # externals(command, arguments)
-            advanced(command, arguments)
+            if "|" in arguments:
+                run_pipeline(command, arguments)
+            else :  
+                run_externals(command, arguments)
+            
