@@ -1,6 +1,5 @@
-import subprocess
 import os
-cli_loop=True
+from socket import gethostname
 
 def tokenizer(user_input):
   input_str= user_input
@@ -61,51 +60,39 @@ def tokenizer(user_input):
     return []
   return input_list
 
-def externals(command, arguments):
-  splitted_command = [command] + arguments
-  full_command = " ".join(splitted_command)
-  print(full_command)
-  try :
-    process = subprocess.Popen(full_command, shell=True)
-    process.wait()
-  except Exception:
-    print("Unknown Error")
-
 def getCwd():
-  print(f"Current Directory : {os.getcwd()}")
+  print (f"Current Directory : {os.getcwd()}")
 
-def changeDirectory(arguments) :
-  if arguments :
+def changeDirectory(arguments):
+  if arguments:
     try :
       os.chdir(arguments[0])
-      print(f"Changed Directory to : {os.getcwd()}")
-    except :
-      print("invalid path")
+      getCwd()
+    except:
+      print("Invalid Path")
 
-def getHelp():
-  print("Available Commands : \n.exit\ngetcwd\ncd\nhelp\nexternals(cmd syntaxes)")
-
+cli_loop = True
 while cli_loop :
-  user_input = input("CustomCLI> ")
+  cliprompt = f"\033[36m\033[1m{gethostname()}@CustomCLI\033[0m\033[33m\033[1m:~{os.getcwd()}$\033[0m "
+
+  #command tokenizer :
+  user_input = input(cliprompt)
   user_input = tokenizer(user_input)
   if not user_input:
     continue
 
   command = user_input[0]
   arguments = user_input[1:]
+  #command tokenizer ends here o/ 
 
   match command :
     case ".exit":
-      cli_loop=False
-
+      cli_loop = False
     case "getcwd":
       getCwd()
-
-    case "cd" :
-      changeDirectory(arguments)
-
+    case "cd":
+      changeDirectory(arguments)   
     case "help" | "?":
-      getHelp()
-
+      print("help | ? picked")     
     case _:
-      externals(command, arguments)
+      print("externals")
