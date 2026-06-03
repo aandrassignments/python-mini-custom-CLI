@@ -15,7 +15,7 @@ def tokenizer(user_input):
   #list hasil tokenize
   input_list=[]
 
-  #tempat sementara buat naro kata
+  #tempat sementara buat naro kata bisa dioptimize nanti pake list aja biar gk bikin string baru terus
   current_word=""
 
   #token khusus yang butuh di cek index setelahnya
@@ -71,8 +71,8 @@ def tokenizer(user_input):
         operator=current+next_str
 
         #simpen word/kata sebelum operatornya
-        if current_word:
-          input_list.append(current_word)
+        # if current_word:
+        input_list.append(current_word)
         current_word=""
 
         #simpen operatornya
@@ -97,6 +97,7 @@ def tokenizer(user_input):
   if inside_single_quotes or inside_double_quotes:
     print("Invalid Syntax")
     return []
+  print(input_list)
   return input_list
 
 cli_loop = True
