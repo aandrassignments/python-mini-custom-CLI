@@ -243,6 +243,47 @@ def changeDirectory(arguments):
     except OSError:
       print("Invalid Path")
 
+def help():
+    print("""
+\033[36m\033[1mPerintah yang Tersedia\033[0m
+------------------
+\033[33mpwd\033[0m               Menampilkan direktori kerja saat ini
+\033[33mcd <directory>\033[0m    Berpindah ke direktori lain
+\033[33mhelp\033[0m              Menampilkan daftar bantuan
+\033[33m?\033[0m                 Alias untuk help
+\033[33m.exit\033[0m             Keluar dari shell
+
+\033[36m\033[1mPerintah Eksternal\033[0m
+------------------
+shell dapat menjalankan perintah linux seperti :          
+\033[33mls, cat, mkdir, clear, grep, sort, dll\033[0m 
+          
+\033[36m\033[1mFitur yang Didukung\033[0m
+------------------
+\033[33m|\033[0m     Pipeline
+\033[33m<\033[0m     Input redirection
+\033[33m>\033[0m     Output redirection
+\033[33m>>\033[0m    Append output redirection
+""")
+
+#english version for help
+#     print("""
+# \033[36m\033[1mAvailable Commands\033[0m
+# ------------------
+# \033[33mpwd\033[0m               Show current working directory
+# \033[33mcd <directory>\033[0m    Change current working directory
+# \033[33mhelp\033[0m              Show this help message
+# \033[33m?\033[0m                 Alias for help
+# \033[33m.exit\033[0m             Exit the shell
+
+# \033[36m\033[1mSupported Features\033[0m
+# ------------------
+# \033[33m|\033[0m     Pipeline
+# \033[33m<\033[0m     Input redirection
+# \033[33m>\033[0m     Output redirection
+# \033[33m>>\033[0m    Append output redirection
+# """)
+
 cli_loop = True
 while cli_loop :
   cliprompt = f"\033[36m\033[1m{gethostname()}@CustomCLI\033[0m\033[33m\033[1m:~{os.getcwd()}$\033[0m "
@@ -263,7 +304,7 @@ while cli_loop :
     case "cd":
       changeDirectory(arguments)
     case "help" | "?":
-      print("help | ? picked")  
+      help() 
     case _:
       if "|" in arguments:
         run_pipeline(command, arguments)
